@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Transparent background: the artwork is scaled up and centered to fill the canvas. -->
+  <g transform="translate(128 128) scale(1.15) translate(-144.5 -132)">
+
+    <!-- git branch: trunk on the left, a branch curving up to the package.
+         Each part is drawn twice, a wider black pass first, so the outline
+         only shows on the outside edges. -->
+    <g fill="none" stroke="#000" stroke-linecap="round">
+      <path d="M80 82 V174" stroke-width="26"/>
+      <path d="M80 160 C80 128 160 142 160 120" stroke-width="26"/>
+      <circle cx="80" cy="62" r="25"/>
+      <circle cx="80" cy="196" r="20" stroke-width="24"/>
+    </g>
+    <circle cx="80" cy="62" r="25" fill="#000"/>
+    <g fill="none" stroke="#f2f5fb" stroke-linecap="round">
+      <path d="M80 82 V174" stroke-width="16"/>
+      <path d="M80 160 C80 128 160 142 160 120" stroke-width="16"/>
+      <circle cx="80" cy="196" r="20" stroke-width="14"/>
+    </g>
+    <circle cx="80" cy="62" r="20" fill="#f2f5fb"/>
+
+    <!-- package cube at the branch tip -->
+    <g fill="#c80000" stroke="#8f0a05" stroke-width="6" stroke-linejoin="round">
+      <path d="M160 30 L202 52 L160 74 L118 52 Z"/>
+      <path d="M118 52 L160 74 V122 L118 100 Z"/>
+      <path d="M160 74 L202 52 V100 L160 122 Z"/>
+    </g>
+
+    <!-- "needs attention" badge -->
+    <circle cx="190" cy="190" r="42" fill="#f5b400" stroke="#000" stroke-width="6"/>
+    <rect x="183" y="160" width="14" height="36" rx="7" fill="#000"/>
+    <circle cx="190" cy="212" r="8" fill="#000"/>
+  </g>
+</svg>

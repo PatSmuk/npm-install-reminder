@@ -45,7 +45,7 @@ npm test              # unit tests on synthetic fixtures, no network
 npm run test:e2e      # real npm installs and branch switches (needs the registry)
 npm run test:vscode   # opens a separate VS Code instance (throwaway profile) on a fixture repo
 npm run package       # builds npm-install-reminder-<version>.vsix
-code --install-extension npm-install-reminder-0.1.0.vsix
+code --install-extension npm-install-reminder-1.0.0.vsix
 ```
 
 It relies on the built-in `vscode.git` extension and has no runtime dependencies.

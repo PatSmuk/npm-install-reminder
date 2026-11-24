@@ -2,10 +2,11 @@
   "name": "npm-install-reminder",
   "displayName": "npm install Reminder",
   "description": "Warns you when a git branch switch leaves node_modules out of date with package.json / package-lock.json.",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "local",
   "private": true,
   "license": "UNLICENSED",
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -44,9 +45,11 @@
     "test": "npm run compile && node --test out/test/unit/",
     "test:e2e": "npm run compile && node --test out/test/e2e/",
     "test:vscode": "npm run compile && node out/test/vscode/runTests.js",
-    "package": "npm run compile && vsce package --allow-missing-repository --skip-license"
+    "package": "npm run compile && vsce package --allow-missing-repository --skip-license",
+    "icon": "node scripts/render-icon.mjs"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^20.19.43",
     "@types/vscode": "^1.90.0",
     "@vscode/test-electron": "^2.5.2",
