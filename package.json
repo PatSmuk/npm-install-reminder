@@ -3,15 +3,33 @@
   "displayName": "npm install Reminder",
   "description": "Warns you when a git branch switch leaves node_modules out of date with package.json / package-lock.json.",
   "version": "1.0.0",
-  "publisher": "local",
-  "private": true,
-  "license": "UNLICENSED",
+  "publisher": "PatSmuk",
+  "license": "MIT",
+  "author": "Pat Smuk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatSmuk/npm-install-reminder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PatSmuk/npm-install-reminder/issues"
+  },
+  "homepage": "https://github.com/PatSmuk/npm-install-reminder#readme",
   "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "npm",
+    "node_modules",
+    "package-lock",
+    "dependencies",
+    "npm install",
+    "git",
+    "branch",
+    "checkout"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -40,12 +58,13 @@
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p .",
     "watch": "tsc -watch -p .",
-    "test": "npm run compile && node --test out/test/unit/",
-    "test:e2e": "npm run compile && node --test out/test/e2e/",
+    "test": "npm run compile && node --test \"out/test/unit/*.test.js\"",
+    "test:e2e": "npm run compile && node --test \"out/test/e2e/*.test.js\"",
     "test:vscode": "npm run compile && node out/test/vscode/runTests.js",
-    "package": "npm run compile && vsce package --allow-missing-repository --skip-license",
+    "package": "vsce package",
     "icon": "node scripts/render-icon.mjs"
   },
   "devDependencies": {
@@ -53,7 +72,8 @@
     "@types/node": "^20.19.43",
     "@types/vscode": "^1.90.0",
     "@vscode/test-electron": "^2.5.2",
-    "@vscode/vsce": "^3.9.2",
+    "@vscode/vsce": "^4.1.1",
+    "ovsx": "^1.4.0",
     "typescript": "^5.9.3"
   }
 }

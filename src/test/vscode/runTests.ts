@@ -13,14 +13,16 @@ async function main(): Promise<void> {
   try {
     await runTests({
       // Use the installed VS Code if there is one; otherwise test-electron downloads one.
-      vscodeExecutablePath: process.env.VSCODE_PATH ?? (fs.existsSync(INSTALLED) ? INSTALLED : undefined),
+      vscodeExecutablePath: process.env.VSCODE_PATH ?? (!process.env.CI && fs.existsSync(INSTALLED) ? INSTALLED : undefined),
       extensionDevelopmentPath: path.resolve(__dirname, '../../..'),
       extensionTestsPath: path.resolve(__dirname, 'suite'),
       launchArgs: [fixture, '--disable-extensions', '--user-data-dir', profile, '--new-window'],
     });
   } finally {
-    fs.rmSync(profile, { recursive: true, force: true });
-    fs.rmSync(fixture, { recursive: true, force: true });
+    // Windows can hold file locks for a moment after VS Code exits.
+    const rm = (dir: string) => fs.rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
+    rm(profile);
+    rm(fixture);
   }
 }
 

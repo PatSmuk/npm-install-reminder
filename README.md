@@ -4,10 +4,21 @@ A VS Code extension that warns you when a branch switch leaves `node_modules` ou
 
 When HEAD moves in any open git repository (a checkout from VS Code or a terminal, a pull, or a rebase), it checks every npm project in that repo and, if anything changed, shows:
 
-> Switched to feat: node_modules is out of date in my-app (1 package at the wrong version, 1 missing).  
-> [Run npm install] [Show Details]
+![Warning: "Switched to feature/date-picker: node_modules is out of date in my-app (1 package at the wrong version, 1 missing)." with Run npm install and Show Details buttons](images/screenshot.png)
+
+If you switch branches in a terminal outside VS Code, the warning appears when you come back to VS Code: its git integration waits for the window to be focused before it notices.
 
 **Run npm install** opens a terminal in each affected directory and runs the command. **Show Details** opens the *npm install Reminder* output channel, which lists every package that differs.
+
+## Install
+
+Search for **npm install Reminder** in the Extensions view, or run:
+
+```sh
+code --install-extension PatSmuk.npm-install-reminder
+```
+
+Also available on [Open VSX](https://open-vsx.org/extension/PatSmuk/npm-install-reminder) for VSCodium, Cursor and other VS Code-compatible editors.
 
 ## What counts as out of date
 
@@ -39,13 +50,26 @@ The extension finds projects from the `package.json` files that git tracks, so i
 
 ## Development
 
+Requires Node 22 (see `.nvmrc`).
+
 ```sh
 npm install
 npm test              # unit tests on synthetic fixtures, no network
 npm run test:e2e      # real npm installs and branch switches (needs the registry)
 npm run test:vscode   # opens a separate VS Code instance (throwaway profile) on a fixture repo
 npm run package       # builds npm-install-reminder-<version>.vsix
-code --install-extension npm-install-reminder-1.0.0.vsix
+npm run icon          # re-renders images/icon.png from images/icon.svg
 ```
 
-It relies on the built-in `vscode.git` extension and has no runtime dependencies.
+CI runs all three test suites on Linux, macOS and Windows. The extension relies on the built-in `vscode.git` extension and has no runtime dependencies.
+
+### Releasing
+
+1. Bump `version` in `package.json` and add a `CHANGELOG.md` entry.
+2. Publish a GitHub release tagged `v<version>`.
+
+The publish workflow checks the tag matches `package.json`, publishes to the VS Code Marketplace (Trusted Publishing, no token) and Open VSX (`OVSX_PAT` secret), and attaches the `.vsix` to the release.
+
+## License
+
+[MIT](LICENSE)

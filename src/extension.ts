@@ -12,6 +12,8 @@ interface Repository {
   readonly state: { readonly HEAD: Branch | undefined; readonly onDidChange: vscode.Event<void> };
 }
 interface GitAPI {
+  /** The git executable VS Code found or the user set with `git.path`. */
+  readonly git: { readonly path: string };
   readonly repositories: Repository[];
   readonly onDidOpenRepository: vscode.Event<Repository>;
   readonly onDidCloseRepository: vscode.Event<Repository>;
@@ -48,9 +50,9 @@ export function activate(context: vscode.ExtensionContext): ReminderApi {
     },
   });
 
-  const add = (repo: Repository) => {
+  const add = (repo: Repository, gitPath: string) => {
     const key = repo.rootUri.fsPath;
-    if (!watchers.has(key)) watchers.set(key, new RepoWatcher(repo, log, notify));
+    if (!watchers.has(key)) watchers.set(key, new RepoWatcher(repo, gitPath, log, notify));
   };
   const remove = (repo: Repository) => {
     const key = repo.rootUri.fsPath;
@@ -78,7 +80,7 @@ export function deactivate(): void {}
 
 async function connectGit(
   context: vscode.ExtensionContext,
-  add: (repo: Repository) => void,
+  add: (repo: Repository, gitPath: string) => void,
   remove: (repo: Repository) => void,
 ): Promise<void> {
   const ext = vscode.extensions.getExtension<GitExtension>('vscode.git');
@@ -86,8 +88,9 @@ async function connectGit(
   const git = ext.isActive ? ext.exports : await ext.activate();
   const attach = () => {
     const api = git.getAPI(1);
-    api.repositories.forEach(add);
-    context.subscriptions.push(api.onDidOpenRepository(add), api.onDidCloseRepository(remove));
+    const addRepo = (repo: Repository) => add(repo, api.git.path);
+    api.repositories.forEach(addRepo);
+    context.subscriptions.push(api.onDidOpenRepository(addRepo), api.onDidCloseRepository(remove));
   };
   if (git.enabled) {
     attach();
@@ -113,6 +116,7 @@ class RepoWatcher implements vscode.Disposable {
 
   constructor(
     private readonly repo: Repository,
+    private readonly gitPath: string,
     private readonly log: vscode.LogOutputChannel,
     private readonly notify: vscode.EventEmitter<Notice>,
   ) {
@@ -155,7 +159,7 @@ class RepoWatcher implements vscode.Disposable {
   }
 
   private async runCheck(reason: string, manual: boolean): Promise<boolean> {
-    const roots = await findInstallRoots(this.root);
+    const roots = await findInstallRoots(this.root, this.gitPath);
     const stale: Notice['roots'] = [];
     let alreadyReported = 0;
     for (const root of roots) {

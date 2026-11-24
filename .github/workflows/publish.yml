@@ -1,0 +1,56 @@
+# Publishes when a GitHub release is published (tag vX.Y.Z matching package.json).
+#
+# VS Code Marketplace: uses Trusted Publishing, no token. The PatSmuk publisher's
+# Trusted Publishing tab needs a policy for repository PatSmuk/npm-install-reminder
+# and workflow file publish.yml.
+#
+# Open VSX: runs only if the repository has an OVSX_PAT secret.
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # attach the .vsix to the release
+      id-token: write # Marketplace Trusted Publishing (OIDC)
+    env:
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Check the release tag matches package.json
+        run: |
+          version="$(node -p 'require("./package.json").version')"
+          if [ "${GITHUB_REF_NAME#v}" != "$version" ]; then
+            echo "::error::Release tag $GITHUB_REF_NAME doesn't match package.json version $version"
+            exit 1
+          fi
+
+      - run: npm test
+      - run: npx vsce package --out extension.vsix
+
+      - name: Publish to the VS Code Marketplace
+        run: npx vsce publish --oidc --packagePath extension.vsix
+
+      - name: Publish to Open VSX
+        if: env.OVSX_PAT != ''
+        run: npx ovsx publish extension.vsix
+
+      - name: Attach the .vsix to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mv extension.vsix "npm-install-reminder-${GITHUB_REF_NAME#v}.vsix"
+          gh release upload "$GITHUB_REF_NAME" "npm-install-reminder-${GITHUB_REF_NAME#v}.vsix"

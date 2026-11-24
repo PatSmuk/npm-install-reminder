@@ -3,10 +3,12 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-// Keep the developer's global git config (signing, hooks) out of fixture repos.
+// Keep the developer's global git config (signing, hooks, autocrlf) out of fixture repos.
+const emptyGitConfig = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'nir-gitconfig-')), 'config');
+fs.writeFileSync(emptyGitConfig, '');
 const gitEnv = {
   ...process.env,
-  GIT_CONFIG_GLOBAL: '/dev/null',
+  GIT_CONFIG_GLOBAL: emptyGitConfig,
   GIT_CONFIG_NOSYSTEM: '1',
   GIT_AUTHOR_NAME: 'test',
   GIT_AUTHOR_EMAIL: 'test@example.invalid',
@@ -19,12 +21,26 @@ export function git(cwd: string, ...args: string[]): string {
 }
 
 export function npm(cwd: string, ...args: string[]): void {
-  execFileSync('npm', [...args, '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], { cwd, stdio: 'pipe' });
+  // On Windows npm is npm.cmd, which Node only runs through a shell. Arguments here are fixed strings.
+  execFileSync('npm', [...args, '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], {
+    cwd,
+    stdio: 'pipe',
+    shell: process.platform === 'win32',
+  });
 }
 
-/** realpath'd so paths match what git reports (/var -> /private/var on macOS). */
+/**
+ * realpath'd so paths match what git reports: /var -> /private/var on macOS,
+ * 8.3 short names (RUNNER~1) -> long names on Windows.
+ */
 export function tempDir(prefix: string): string {
-  return fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), prefix)));
+  return fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), prefix)));
+}
+
+/** Compares paths the way the OS does (case-insensitive on Windows). */
+export function samePath(a: string, b: string): boolean {
+  const norm = (p: string) => (process.platform === 'win32' ? path.resolve(p).toLowerCase() : path.resolve(p));
+  return norm(a) === norm(b);
 }
 
 export function writeJson(file: string, value: unknown): void {

@@ -57,12 +57,12 @@ const OTHER_LOCKFILES = ['yarn.lock', 'pnpm-lock.yaml', 'bun.lock', 'bun.lockb']
 /**
  * Finds every directory in the repo that npm installs into, from the files git
  * tracks. npm workspace members are covered by their root's lockfile, and
- * yarn/pnpm/bun projects are left alone.
+ * yarn/pnpm/bun projects are left alone. `gitPath` is the git executable to run.
  */
-export async function findInstallRoots(repoRoot: string): Promise<InstallRoot[]> {
+export async function findInstallRoots(repoRoot: string, gitPath = 'git'): Promise<InstallRoot[]> {
   const names = ['package.json', ...NPM_LOCKFILES, ...OTHER_LOCKFILES];
   const { stdout } = await execFileAsync(
-    'git',
+    gitPath,
     ['ls-files', '-z', '--', ...names.map((n) => `:(glob)**/${n}`)],
     { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024 },
   );
