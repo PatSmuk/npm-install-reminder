@@ -1,0 +1,30 @@
+// Launches a separate VS Code instance (own profile, other extensions disabled)
+// on a fixture repo and runs ./suite inside it.
+import { runTests } from '@vscode/test-electron';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { createBranchFixture, tempDir } from '../fixture';
+
+const INSTALLED = '/Applications/Visual Studio Code.app/Contents/MacOS/Code';
+
+async function main(): Promise<void> {
+  const fixture = createBranchFixture();
+  const profile = tempDir('nir-vscode-profile-');
+  try {
+    await runTests({
+      // Use the installed VS Code if there is one; otherwise test-electron downloads one.
+      vscodeExecutablePath: process.env.VSCODE_PATH ?? (fs.existsSync(INSTALLED) ? INSTALLED : undefined),
+      extensionDevelopmentPath: path.resolve(__dirname, '../../..'),
+      extensionTestsPath: path.resolve(__dirname, 'suite'),
+      launchArgs: [fixture, '--disable-extensions', '--user-data-dir', profile, '--new-window'],
+    });
+  } finally {
+    fs.rmSync(profile, { recursive: true, force: true });
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

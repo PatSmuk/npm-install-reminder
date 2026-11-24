@@ -1,0 +1,56 @@
+{
+  "name": "npm-install-reminder",
+  "displayName": "npm install Reminder",
+  "description": "Warns you when a git branch switch leaves node_modules out of date with package.json / package-lock.json.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "extensionDependencies": [
+    "vscode.git"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "npmInstallReminder.checkNow",
+        "title": "Check Whether npm install Is Needed",
+        "category": "npm install Reminder"
+      }
+    ],
+    "configuration": {
+      "title": "npm install Reminder",
+      "properties": {
+        "npmInstallReminder.installCommand": {
+          "type": "string",
+          "default": "npm install",
+          "description": "Command the warning's button runs in a terminal, in the directory that needs it."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "test": "npm run compile && node --test out/test/unit/",
+    "test:e2e": "npm run compile && node --test out/test/e2e/",
+    "test:vscode": "npm run compile && node out/test/vscode/runTests.js",
+    "package": "npm run compile && vsce package --allow-missing-repository --skip-license"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^5.9.3"
+  }
+}
